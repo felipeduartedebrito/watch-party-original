@@ -5,14 +5,11 @@ import WatchSession from '../WatchSession';
 import { doc, getDoc } from "firebase/firestore";
 import * as firestore from "firebase/firestore";
 
-jest.mock("firebase/firestore", () => {
-    const mockGetDoc = jest.fn();
-    const mockDoc = jest.fn();
-    return {
-        getDoc: mockGetDoc,
-        doc: mockDoc
-    };
-});
+jest.mock("firebase/firestore", () => ({
+    getDoc: jest.fn(),
+    getFirestore: jest.fn(),
+    doc: jest.fn()
+}));
 
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),
