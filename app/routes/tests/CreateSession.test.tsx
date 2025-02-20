@@ -5,9 +5,15 @@ import CreateSession from '../CreateSession';
 import { addDoc, collection } from 'firebase/firestore';
 
 jest.mock("firebase/firestore", () => ({
-    collection: jest.fn(),
+    getDoc: jest.fn(),
+    getFirestore: jest.fn(),
+    doc: jest.fn(),
+    enableIndexedDbPersistence: jest.fn().mockResolvedValue(undefined),
+    initializeFirestore: jest.fn().mockReturnValue({
+        settings: jest.fn()
+    }),
     addDoc: jest.fn(),
-    getFirestore: jest.fn()
+    collection: jest.fn()
 }));
 
 jest.mock('react-router-dom', () => ({
@@ -29,7 +35,7 @@ test('Session creation', async () => {
     );
 
     fireEvent.change(getByPlaceholderText('Session Name'), { target: { value: 'Test Session' } });
-    fireEvent.change(getByPlaceholderText('Youtube Link'), { target: { value: 'https://youtube.com/...' } });
+    fireEvent.change(getByPlaceholderText('Youtube Link'), { target: { value: 'https://youtube.com/watch?v=dQw4w9WgXcQ' } });
     fireEvent.click(getByText('Create'));
 
     await waitFor(() => {

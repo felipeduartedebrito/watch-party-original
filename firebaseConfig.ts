@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, enableIndexedDbPersistence, initializeFirestore, FirestoreSettings } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 // Your web app's Firebase configuration
@@ -14,18 +14,29 @@ const firebaseConfig = {
 };
 
 let app;
-
 if (!getApps().length) {
-  console.log('Initialize Firebase App');
+  console.log('Inicializando Firebase App');
   app = initializeApp(firebaseConfig);
-  console.log('Firebase App on:', app);
 } else {
-  console.log('Firebase App already on');
+  console.log('Firebase App já inicializado');
   app = getApp();
-  console.log('Firebase App:', app);
 }
 
-const db = getFirestore(app);
+// Firestore settings with cache size
+const firestoreSettings: FirestoreSettings = {
+  cacheSizeBytes: 10485760 // 10 MB cache size
+};
+
+const db = initializeFirestore(app, firestoreSettings);
+
+enableIndexedDbPersistence(db).catch((err) => {
+  if (err.code == 'failed-precondition') {
+    console.log('Persistência falhou: múltiplas abas abertas');
+  } else if (err.code == 'unimplemented') {
+    console.log('Persistência não suportada');
+  }
+});
+
 const auth = getAuth(app);
 
 export { db, auth };

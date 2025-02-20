@@ -7,9 +7,14 @@ import * as firestore from "firebase/firestore";
 import YouTube from 'react-youtube';
 
 jest.mock("firebase/firestore", () => ({
-    getDoc: jest.fn(),
-    getFirestore: jest.fn(),
-    doc: jest.fn()
+  getDoc: jest.fn(),
+  getFirestore: jest.fn(),
+  doc: jest.fn(),
+  enableIndexedDbPersistence: jest.fn().mockResolvedValue(undefined),
+  initializeFirestore: jest.fn().mockReturnValue({
+    settings: jest.fn()
+  }),
+  addDoc: jest.fn()
 }));
 
 jest.mock('react-youtube', () => ({
@@ -45,11 +50,11 @@ test('Watch Session', async () => {
     }
   };
 
-    const mockGetDoc = jest.fn().mockResolvedValue({ exists: () => true, data: () => mockData });
-    const getDocMock = firestore.getDoc as jest.Mock;
-    getDocMock.mockImplementation(mockGetDoc);
+  const mockGetDoc = jest.fn().mockResolvedValue({ exists: () => true, data: () => mockData });
+  const getDocMock = firestore.getDoc as jest.Mock;
+  getDocMock.mockImplementation(mockGetDoc);
 
-    // Mock the doc function to return a DocumentReference
+  // Mock the doc function to return a DocumentReference
   const mockDocRef = {}; // Mock DocumentReference
   (doc as jest.Mock).mockReturnValue(mockDocRef);
 

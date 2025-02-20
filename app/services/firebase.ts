@@ -79,12 +79,12 @@ async function enterRoom(rid: string, uid: string) {
   }
 }
 
-async function addVideo(
+export const addVideo = async (
   rid: string,
   uid: string,
   vid: string,
   title: string = ""
-) {
+) => {
   try {
     return addDoc(collection(db, "parties", rid, "videos"), {
       uid,
@@ -95,7 +95,7 @@ async function addVideo(
   } catch (error) {
     console.error(error);
   }
-}
+};
 
 async function playVideo(
   rid: string,
@@ -166,7 +166,6 @@ async function removeVideo(rid: string, id: string) {
 }
 
 export {
-  addVideo,
   createRoom,
   enterRoom,
   getRoom,

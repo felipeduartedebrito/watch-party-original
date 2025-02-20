@@ -1,12 +1,26 @@
 import React, { useState } from "react";
-import { addDoc, collection } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
-import { db } from "../../firebaseConfig";
+import { addVideo } from "../routes/_index";
+import "../styles/WatchParty.css";
 
-const CreateSession = () => {
+const WatchParty = () => {
     const [sessionName, setSessionName] = useState('');
     const [youtubeLink, setYoutubeLink] = useState('');
-    const navigate = useNavigate();
+
+    const handleAddUrl = async () => {
+        const videoId = extractVideoId(youtubeLink);
+        if (videoId) {
+            try {
+                const docId = await addVideo(sessionName, "user_id", videoId, sessionName);
+                if (docId) {
+                    console.log(`Video added with ID: ${docId}`);
+                }
+            } catch (error) {
+                console.error("Error adding video", error);
+            }
+        } else {
+            console.error('Invalid YouTube link');
+        }
+    };
 
     const extractVideoId = (url: string): string | null => {
         try {
@@ -24,40 +38,22 @@ const CreateSession = () => {
         }
     };
 
-    const createSession = async () => {
-        try {
-            const videoId = extractVideoId(youtubeLink);
-            if (videoId) {
-                const docRef = await addDoc(collection(db, "parties_sessions"), {
-                    sessionName,
-                    youtubeLink: videoId,
-                    timestamp: new Date()
-                });
-                navigate(`/watch/${docRef.id}`);
-            } else {
-                console.error('Invalid YouTube link');
-            }
-        } catch (error) {
-            console.error("Error creating session", error);
-        }
-    };
-
     return (
         <div>
-            <h2>Create Session</h2>
+            <h1>Watch Party</h1>
             <input
                 placeholder="Session Name"
                 value={sessionName}
                 onChange={(e) => setSessionName(e.target.value)}
             />
             <input
-                placeholder="Youtube Link"
+                placeholder="YouTube URL"
                 value={youtubeLink}
                 onChange={(e) => setYoutubeLink(e.target.value)}
             />
-            <button onClick={createSession}>Create</button>
+            <button onClick={handleAddUrl}>Add Video</button>
         </div>
     );
 };
 
-export default CreateSession;
+export default WatchParty;
