@@ -1,5 +1,6 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -12,8 +13,19 @@ const firebaseConfig = {
   measurementId: "G-ZQSHDQKLGR"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+let app;
 
-export { db };
+if (!getApps().length) {
+  console.log('Initialize Firebase App');
+  app = initializeApp(firebaseConfig);
+  console.log('Firebase App on:', app);
+} else {
+  console.log('Firebase App already on');
+  app = getApp();
+  console.log('Firebase App:', app);
+}
+
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+export { db, auth };

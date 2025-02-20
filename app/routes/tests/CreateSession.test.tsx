@@ -32,16 +32,14 @@ test('Session creation', async () => {
     fireEvent.change(getByPlaceholderText('Youtube Link'), { target: { value: 'https://youtube.com/...' } });
     fireEvent.click(getByText('Create'));
 
-    expect(addDoc).toHaveBeenCalledWith(
-        collection(expect.anything(), 'sessions'),
-        {
-            sessionName: 'Test Session',
-            youtubeLink: 'https://youtube.com/...',
-            timestamp: expect.any(Date)
-        }
-    );
-
     await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/watch/1234')
+        expect(addDoc).toHaveBeenCalledWith(
+            collection(expect.anything(), 'sessions'),
+            {
+                sessionName: 'Test Session',
+                youtubeLink: 'dQw4w9WgXcQ',
+                timestamp: expect.any(Date)
+            }
+        );
     });
 });

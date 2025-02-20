@@ -66,7 +66,6 @@ test('Watch Session', async () => {
     expect(screen.getByText('Mock YouTube Player - https://youtube.com/...')).toBeInTheDocument();
   });
 
-  // Simular estado do player
   await waitFor(() => {
     expect(playerMock.playVideo).toHaveBeenCalled();
     expect(playerMock.seekTo).toHaveBeenCalledWith(120, true);
