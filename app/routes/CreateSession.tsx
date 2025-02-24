@@ -8,14 +8,35 @@ const CreateSession = () => {
     const [youtubeLink, setYoutubeLink] = useState('');
     const navigate = useNavigate();
 
+    const extractVideoId = (url: string): string | null => {
+        try {
+            const urlObj = new URL(url);
+            if (urlObj.hostname === 'youtu.be') {
+                return urlObj.pathname.substring(1);
+            } else if (urlObj.hostname === 'www.youtube.com' || urlObj.hostname === 'youtube.com') {
+                return urlObj.searchParams.get('v');
+            } else {
+                return null;
+            }
+        } catch (e) {
+            console.error('Invalid URL:', e);
+            return null;
+        }
+    };
+
     const createSession = async () => {
         try {
-            const docRef = await addDoc(collection(db, "sessions"), {
-                sessionName,
-                youtubeLink,
-                timestamp: new Date()
-            });
-            navigate(`/watch/${docRef.id}`);
+            const videoId = extractVideoId(youtubeLink);
+            if (videoId) {
+                const docRef = await addDoc(collection(db, "parties_sessions"), {
+                    sessionName,
+                    youtubeLink: videoId,
+                    timestamp: new Date()
+                });
+                navigate(`/watch/${docRef.id}`);
+            } else {
+                console.error('Invalid YouTube link');
+            }
         } catch (error) {
             console.error("Error creating session", error);
         }
