@@ -49,9 +49,15 @@ After building the watch party app, we would like you to answer the following qu
 
 1. **How do you guarantee that the time that a new user joins is accurate (i.e perfectly in sync with the other users in the session) and are there any edge cases where it isn’t? Think about cases that might occur with real production traffic.**
 
+I used a timestamp method. When a new user join the session, the server provides the timestamp of the video playing. There are a few situations where synchronization may not be accurate. For example, network latency fluctuations can cause variations in the accuracy of the timestamp received by the new user. Server congestion during periods of high load can cause delays in distributing timestamps and synchronization messages. Additionally, users in different time zones may experience varied response times, affecting the accuracy of synchronization.
+
 2. **Are there any other situations - i.e race conditions, edge cases - where one user can be out of sync with another? (Out of sync meaning that user A has the video playing or paused at some time, while user B has the video playing or paused at some other time.)**
 
+In terms of situations and race conditions where a user might get out of sync, common cases include simultaneous play/pause actions. If two or more users click the play or pause buttons at the same time, there may be a race condition resulting in desynchronization. Lost network messages due to connectivity issues can also cause desynchronization, as a user may miss a crucial synchronization message. Additionally, asynchronous server updates can cause issues, especially if the server does not apply playback time updates atomically, resulting in different clients receiving slightly different timestamps.
+
 3. **How would you productionize this application to a scale where it needs to be used reliably with 1M+ DAUs and 10k people connected to a single session? Think infrastructure changes, code changes & UX changes.**
+
+To make this app work for a lot of people, like over a million daily users and thousands in one session, we need to make some changes. We can use multiple servers to share the load so no single server gets overwhelmed. Using a distributed cache like Redis helps in quickly storing and retrieving data. We should also build the system to handle failures gracefully, so it continues to work even if something goes wrong. For the user experience, we can add visual indicators to show if they are in sync with others or if there's a delay. Giving real-time feedback about network status can help users understand any issues.
 
 ### Help & Clarifications
 
