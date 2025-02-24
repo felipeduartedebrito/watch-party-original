@@ -1,10 +1,10 @@
 import { Icon } from "@iconify-icon/react";
 import type { MetaFunction } from "@remix-run/node";
-import { DocumentData, serverTimestamp } from "firebase/firestore";
+import { DocumentData, getFirestore, serverTimestamp, addDoc, collection } from "firebase/firestore";
 import React, { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player";
 import { OnProgressProps } from "react-player/base";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { v4 as uuidv4 } from "uuid";
@@ -25,6 +25,7 @@ import {
   seekVideo,
   stopVideo,
 } from "~/services/firebase";
+import App from '../App';
 
 const Alert = withReactContent(Swal);
 
@@ -45,11 +46,15 @@ export default function Index() {
   const [playedSeconds, setPlayedSeconds] = useState<number>(0);
   const [room, setRoom] = useState<DocumentData>();
   const [url, setUrl] = useState<string>("");
+  const [sessionName, setSessionName] = useState('');
+  const [youtubeLink, setYoutubeLink] = useState('');
   const [videos, setVideos] = useState<DocumentData[]>([]);
 
   const player = useRef<ReactPlayer>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const rid = searchParams.get("rid") || "";
+  const navigate = useNavigate();
+  const db = getFirestore();
 
   const fetchNewRoom = async (id: string) => {
     await createRoom(id);
@@ -102,6 +107,20 @@ export default function Index() {
       await playVideo(rid, { vid: video?.id, currentTime: 0, playing: true });
 
     setUrl("");
+  };
+
+  const handleCreateSession = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      const docRef = await addDoc(collection(db, 'sessions'), {
+        sessionName,
+        youtubeLink,
+        timestamp: new Date()
+      });
+      navigate(`/watch/${docRef.id}`);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
   };
 
   const handlePlayerReady = () => {
@@ -200,6 +219,23 @@ export default function Index() {
               </button>
             </div>
           </form>
+          <form onSubmit={handleCreateSession}>
+            <input
+              type="text"
+              placeholder="Session Name"
+              value={sessionName}
+              onChange={(e) => setSessionName(e.target.value)}
+              className="w-full outline-none text-slate-700 bg-white rounded px-2 mb-2"
+            />
+            <input
+              type="text"
+              placeholder="Youtube Link"
+              value={youtubeLink}
+              onChange={(e) => setYoutubeLink(e.target.value)}
+              className="w-full outline-none text-slate-700 bg-white rounded px-2 mb-2"
+            />
+            <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">Create</button>
+          </form>
           <div
             className={cn(`w-full flex gap-2 p-2 rounded bg-opacity-90`, {
               "bg-neutral-900": videos.length,
@@ -210,11 +246,10 @@ export default function Index() {
               {videos.map((video) => (
                 <button
                   key={video.id}
-                  className={`cursor-pointer h-9 p-1 pl-2 w-full flex gap-2 items-center text-white rounded justify-between ${
-                    video.id === room?.vid
-                      ? "border-neutral-600 bg-red-500 hover:bg-red-600"
-                      : "border-transparent bg-transparent"
-                  }`}
+                  className={`cursor-pointer h-9 p-1 pl-2 w-full flex gap-2 items-center text-white rounded justify-between ${video.id === room?.vid
+                    ? "border-neutral-600 bg-red-500 hover:bg-red-600"
+                    : "border-transparent bg-transparent"
+                    }`}
                   onClick={() => handleStartVideo(video.id)}
                 >
                   <div className="w-full text-left truncate font-light text-sm">

@@ -16,17 +16,23 @@ interface SessionData {
 }
 
 function WatchSession() {
+  console.log('WatchSession component rendered');
+
   const { sessionId } = useParams<{ sessionId: string }>();
+  console.log('sessionId:', sessionId);
+
   const [sessionData, setSessionData] = useState<SessionData | null>(null);
   const [player, setPlayer] = useState<YouTubePlayer | null>(null);
 
   useEffect(() => {
     const fetchSessionData = async () => {
       if (sessionId) {
+        console.log('Fetching session data for sessionId:', sessionId);
         const docRef = doc(db, 'sessions', sessionId);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const data = docSnap.data() as SessionData;
+          console.log('Session data:', data);
           setSessionData(data);
           if (player && data.playerState) {
             const { state, currentTime } = data.playerState;
@@ -49,10 +55,12 @@ function WatchSession() {
   }, [sessionId, player]);
 
   const onPlayerReady = (event: YouTubeEvent) => {
+    console.log('Player ready');
     setPlayer(event.target);
   };
 
   const onPlay = async () => {
+    console.log('Video playing');
     if (player && sessionId) {
       await updateDoc(doc(db, 'sessions', sessionId), {
         playerState: {
@@ -64,6 +72,7 @@ function WatchSession() {
   };
 
   const onPause = async () => {
+    console.log('Video paused');
     if (player && sessionId) {
       await updateDoc(doc(db, 'sessions', sessionId), {
         playerState: {
@@ -75,6 +84,7 @@ function WatchSession() {
   };
 
   const onSeek = async () => {
+    console.log('Video seeking');
     if (player && sessionId) {
       await updateDoc(doc(db, 'sessions', sessionId), {
         playerState: {
@@ -99,7 +109,7 @@ function WatchSession() {
         <div>
           <h1>{sessionData.sessionName}</h1>
           <YouTube
-            videoId={sessionData.youtubeLink} // Utilize o videoId diretamente
+            videoId={sessionData.youtubeLink}
             opts={opts}
             onReady={onPlayerReady}
             onPlay={onPlay}

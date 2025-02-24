@@ -15,10 +15,10 @@ const firebaseConfig = {
 
 let app;
 if (!getApps().length) {
-  console.log('Inicializando Firebase App');
+  console.log('Starting Firebase App');
   app = initializeApp(firebaseConfig);
 } else {
-  console.log('Firebase App já inicializado');
+  console.log('Firebase App already started');
   app = getApp();
 }
 
@@ -29,13 +29,13 @@ const firestoreSettings: FirestoreSettings = {
 
 const db = initializeFirestore(app, firestoreSettings);
 
-enableIndexedDbPersistence(db).catch((err) => {
-  if (err.code == 'failed-precondition') {
-    console.log('Persistência falhou: múltiplas abas abertas');
-  } else if (err.code == 'unimplemented') {
-    console.log('Persistência não suportada');
-  }
-});
+// enableIndexedDbPersistence(db).catch((err) => {
+//   if (err.code == 'failed-precondition') {
+//     console.log('Persistência falhou: múltiplas abas abertas');
+//   } else if (err.code == 'unimplemented') {
+//     console.log('Persistência não suportada');
+//   }
+// });
 
 const auth = getAuth(app);
 

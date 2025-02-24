@@ -1,12 +1,21 @@
 import React, { useState } from "react";
-import { addVideo } from "../routes/_index";
-import "../styles/WatchParty.css";
+import { addVideo } from "../services/firebase";
 
 const WatchParty = () => {
     const [sessionName, setSessionName] = useState('');
     const [youtubeLink, setYoutubeLink] = useState('');
+    const [error, setError] = useState<string | null>(null);
 
     const handleAddUrl = async () => {
+        setError(null);
+        console.log("Session Name:", sessionName);
+        console.log("YouTube Link:", youtubeLink);
+
+        if (!sessionName || !youtubeLink) {
+            setError('Please, fill all the fields.');
+            return;
+        }
+
         const videoId = extractVideoId(youtubeLink);
         if (videoId) {
             try {
@@ -16,9 +25,10 @@ const WatchParty = () => {
                 }
             } catch (error) {
                 console.error("Error adding video", error);
+                setError('Error adding video, try again.');
             }
         } else {
-            console.error('Invalid YouTube link');
+            setError('Invalid YouTube Link.');
         }
     };
 
@@ -34,6 +44,7 @@ const WatchParty = () => {
             }
         } catch (e) {
             console.error('Invalid URL:', e);
+            setError('Invalid YouTube Link.');
             return null;
         }
     };
@@ -47,11 +58,12 @@ const WatchParty = () => {
                 onChange={(e) => setSessionName(e.target.value)}
             />
             <input
-                placeholder="YouTube URL"
+                placeholder="YouTube Link"
                 value={youtubeLink}
                 onChange={(e) => setYoutubeLink(e.target.value)}
             />
             <button onClick={handleAddUrl}>Add Video</button>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
         </div>
     );
 };
